@@ -77,8 +77,9 @@ var cages = []*Cage{
 
 func main() {
 	zoo := Zoo{
-		Name:  "Central Park Zoo",
-		Cages: cages,
+		Name:    "Central Park Zoo",
+		Cages:   cages,
+		Animals: animals,
 	}
 
 	zookeeperDavid := Zookeper{
@@ -92,7 +93,7 @@ func main() {
 
 	zoo.greetVisitors()
 
-	for true {
+	for {
 		if zookeeperDavid.XP <= 0 {
 			fmt.Printf("Game over!")
 			break
@@ -100,7 +101,7 @@ func main() {
 
 		var escapedAnimals []*Animal
 
-		for _, animal := range animals {
+		for _, animal := range zoo.Animals {
 			if !animal.Caged {
 				escapedAnimals = append(escapedAnimals, animal)
 			}
@@ -113,46 +114,46 @@ func main() {
 
 		randomAnimal := escapedAnimals[rand.Intn(len(escapedAnimals))]
 
-		var cage *Cage
+		var currentCage *Cage
 
-		for _, c := range zoo.Cages {
-			if c.Species == randomAnimal.Species {
-				cage = c
+		for _, cage := range zoo.Cages {
+			if cage.Species == randomAnimal.Species {
+				currentCage = cage
 				break
 			}
 		}
 
-		zookeeperDavid.catchAnimal(randomAnimal, cage)
+		zookeeperDavid.catchAnimal(randomAnimal, currentCage)
 	}
 }
 
 func (zookeper *Zookeper) catchAnimal(animal *Animal, cage *Cage) {
+	fmt.Printf("Look, It's %v %c. Catch it!\n", animal.Name, animal.Icon)
+
 	randomInt := rand.Intn(2)
 
-	switch randomInt {
-	case 0:
-		animal.biteZookeperAndScreamOutLoud(zookeper)
-	case 1:
-		fmt.Printf("%c Woah!! %s is now in cage\n", animal.Icon, animal.Name)
+	var userInput int
+	
+	fmt.Scan(&userInput)
+
+	if randomInt == userInput {
+		fmt.Printf("%c Good job! %s is now in cage\n", animal.Icon, animal.Name)
 
 		cage.AnimalCount += 1
 		animal.Caged = true
-
-		if cage.AnimalCount == len(animals) {
-			fmt.Printf("All animals are now in cage! Good job, %s\n", zookeper.Name)
-		}
+	} else {
+		animal.biteZookeperAndScreamOutLoud(zookeper)
 	}
-
 }
 
 func (zookeper *Zookeper) receiveDamageFromAnimal(animal *Animal) {
 	zookeper.XP -= animal.DamagePoints
 
 	if zookeper.XP > 0 {
-		fmt.Printf("%s lost %v points of XP and now has %v points of XP\n", zookeper.Name, animal.DamagePoints, zookeper.XP)
+		fmt.Printf("%s loses %v points of XP and now has %v points of XP\n", zookeper.Name, animal.DamagePoints, zookeper.XP)
 
 	} else {
-		fmt.Printf("%s lost %v points of XP and died\n", zookeper.Name, animal.DamagePoints)
+		fmt.Printf("%s loses %v points of XP and dies :(\n", zookeper.Name, animal.DamagePoints)
 	}
 }
 
@@ -163,5 +164,5 @@ func (animal *Animal) biteZookeperAndScreamOutLoud(zookeper *Zookeper) {
 }
 
 func (zoo *Zoo) greetVisitors() {
-	fmt.Println("Hello! Welcome to the zoo. Unfortunately, today our animals decided to run away. Our zookeeper is trying to calm the situation down")
+	fmt.Println("Hello! Welcome to the zoo. Unfortunately, today our animals decided to run away. Our zookeeper is trying to calm the situation down.\nRules: choose 1 or 0 to catch an animal")
 }
