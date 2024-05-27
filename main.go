@@ -42,7 +42,7 @@ type Zookeper struct {
 	XP int
 }
 
-func (zookeper *Zookeper) catchAnimal(animal *Animal, cage *Cage) {
+func (zookeper *Zookeper) catchAnimal(animal *Animal, cage *Cage, escapedAnimals *[]*Animal) {
 	fmt.Printf("Look, It's %v %c. Catch it!\n", animal.Name, animal.Icon)
 
 	randomInt := rand.Intn(2)
@@ -50,6 +50,20 @@ func (zookeper *Zookeper) catchAnimal(animal *Animal, cage *Cage) {
 	var userInput int
 
 	fmt.Scan(&userInput)
+
+	if cage == nil {
+		fmt.Printf("Oops, there is no cage for %v", animal.Name)
+		animal.biteZookeperAndScreamOutLoud(zookeper)
+
+		for i, a := range *escapedAnimals {
+			if a.Name == animal.Name {
+				*escapedAnimals = append((*escapedAnimals)[:i], (*escapedAnimals)[i+1:]...)
+				break
+			}
+		}
+
+		return
+	}
 
 	if randomInt == userInput {
 		fmt.Printf("%c Good job! %s is now in cage\n", animal.Icon, animal.Name)
@@ -163,19 +177,6 @@ func main() {
 			}
 		}
 
-		if currentCage == nil {
-			fmt.Printf("Oops, there is no cage for %v", randomAnimal.Name)
-			randomAnimal.biteZookeperAndScreamOutLoud(&zookeeperDavid)
-
-			for i, a := range escapedAnimals {
-				if a.Name == randomAnimal.Name {
-					escapedAnimals = append(escapedAnimals[:i], escapedAnimals[i+1:]...)
-				}
-			}
-
-			continue
-		}
-
-		zookeeperDavid.catchAnimal(randomAnimal, currentCage)
+		zookeeperDavid.catchAnimal(randomAnimal, currentCage, &escapedAnimals)
 	}
 }
